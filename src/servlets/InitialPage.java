@@ -7,14 +7,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 public class InitialPage {
 
-	private static JFrame frame;
-	private JTextField txtYourHighScore;
+
+	private JLabel lable;
+	static FrameClass frame;
+	static highScore hiScore;
+	static int Height;
+	static int Width;
 
 	/**
 	 * Launch the application.
@@ -43,47 +46,45 @@ public class InitialPage {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new JFrame();
+		frame = new FrameClass();
+		Height = frame.getHeight();
+		Width =frame.getWidth();
 		frame.getContentPane().setForeground(new Color(0, 0, 205));
 		frame.getContentPane().setFont(new Font("Lucida Grande", Font.BOLD, 50));
 		frame.getContentPane().setBackground(Color.RED);
-		frame.setBackground(Color.RED);
-		frame.setBounds(100, 100, 800, 800);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setResizable(false);
+		//frame.setBackground(Color.RED);
 		frame.getContentPane().setLayout(null);
-		// LABLE
+		frame.setResizable(false);
+		
+	
 		JLabel lblNewLabel = new JLabel("VOGEL");
-		lblNewLabel.setBounds(310, 148, 190, 55);
-		lblNewLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 54));
+		lblNewLabel.setForeground(Color.BLUE);
+		lblNewLabel.setFont(new Font("Comic Sans MS", Font.BOLD, 150));
+		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel.setBounds(243, 32, 500, 166);
 		frame.getContentPane().add(lblNewLabel);
-		// BUTTON
-		JButton btnNewButton = new JButton("START");
-		btnNewButton.setBounds(345, 400, 117, 61);
-		btnNewButton.setForeground(new Color(0, 0, 139));
-		btnNewButton.setBackground(new Color(105, 105, 105));
-		frame.getContentPane().add(btnNewButton);
+		
+		JButton btnNewButton = new JButton("PLAY");
+		btnNewButton.setForeground(Color.GREEN);
 		btnNewButton.addActionListener(new Action());
-
-		// TEXT FIELD
-		txtYourHighScore = new JTextField();
-		txtYourHighScore.setForeground(new Color(0, 0, 139));
-		txtYourHighScore.setText("YOUR HIGH SCORE" + "00000000");
-		txtYourHighScore.setBounds(310, 677, 235, 45);
-		frame.getContentPane().add(txtYourHighScore);
-		txtYourHighScore.setColumns(10);
+		btnNewButton.setBackground(Color.LIGHT_GRAY);
+		btnNewButton.setFont(new Font("Comic Sans MS", Font.BOLD, 26));
+		btnNewButton.setBounds(Width/2-60, Height/2-10, 120, 50);
+		frame.getContentPane().add(btnNewButton);
+		
+		lable = new JLabel();
+		lable.setFont(new Font("Comic Sans MS", Font.BOLD, 24));
+		lable.setText("   Your High Score : ");
+		lable.setForeground(Color.YELLOW);
+		lable.setBounds(Width/2-250, Height/2+155, 380, 50);
+		frame.getContentPane().add(lable);
+		//lable.setColumns(10);
+		//frame.setBounds(100,100,Width,Height);
 	}
-
-	static class Action implements ActionListener {
-		public void actionPerformed1(ActionEvent e) {
-			// put your out put.
-
-		}
-
+static class Action implements ActionListener {
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			// System.out.println("hello");
 			System.out.println("hello");
 			frame.setVisible(false);
 			Activity a = new Activity();
@@ -91,5 +92,4 @@ public class InitialPage {
 		}
 
 	}
-
 }
