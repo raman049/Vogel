@@ -29,10 +29,11 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 	public Rectangle bird;
 	public Random random;
 	public int ticks, yMotion, score;
-	public boolean gameOver, started, cloudIntersects;
+	public boolean gameOver, started, cloudIntersects, tapped;
 	FrameClass jframe;
 	static int highScore1;
-	public BufferedImage plane2Image, cloudImage, birdImage1, birdImage2, birdImageCombine, lightning;
+	public BufferedImage plane2Image, cloudImage, birdImage1, birdImage2, birdImageCombine, lightning, wave;
+	public Boolean gameOverApproved;
 
 	public void ActivityMethod() {
 		jframe = new FrameClass();
@@ -67,11 +68,12 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 			hs = highScore.updateHiScore(0).toString();
 			highScore1 = Integer.valueOf(hs);
 			// for background image
-			plane2Image = ImageIO.read(new File("Plane2.png"));
+			plane2Image = ImageIO.read(new File("Plane.png"));
 			cloudImage = ImageIO.read(new File("Cloud.png"));
 			lightning = ImageIO.read(new File("lightning.png"));
 			birdImage1 = ImageIO.read(new File("bird1_sm.png"));
 			birdImage2 = ImageIO.read(new File("bird2_sm.png"));
+			wave = ImageIO.read(new File("wave.png"));
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -96,31 +98,30 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 		int height = 30;
 		if (start) {
 			// position of cloud
-			cloud.add(new Rectangle(1 + cloud.size() * 300, 1 + random.nextInt((HEIGHT / 16)) + HEIGHT / 16, width,
-					height));
-			cloud.add(new Rectangle(1 + cloud.size() * 300, 1 + random.nextInt(HEIGHT / 16), width, height));
+			cloud.add(new Rectangle(random.nextInt(100) + width - cloud.size() * 300, 20 + random.nextInt(HEIGHT / 16),
+					width, height));
 		} else {
-			cloud.add(new Rectangle(1 + cloud.size() * 300, 1 + random.nextInt((HEIGHT / 16)) + HEIGHT / 16, width,
-					height));
-			cloud.add(new Rectangle(1 + cloud.size() * 300, 1 + random.nextInt(HEIGHT / 16), width, height));
+			cloud.add(
+					new Rectangle(cloud.get(cloud.size() - 1).x - 600, 1 + random.nextInt(HEIGHT / 16), width, height));
+
 		}
 	}
 
 	public void Jet(Graphics g, Rectangle column) {
 		g.setColor(Color.black);
-		g.fillRect(column.x, column.y, column.width, column.height);
+		// g.fillRect(column.x, column.y, column.width, column.height);
 		g.drawImage(plane2Image, column.x, column.y, 75, 30, null);
 	}
 
 	public void Cloud(Graphics g, Rectangle column2) {
 		g.setColor(Color.black);
-		g.fillRect(column2.x, column2.y, column2.width, column2.height);
+		// g.fillRect(column2.x, column2.y, column2.width, column2.height);
 		g.drawImage(cloudImage, column2.x, column2.y, 75, 30, null);
 	}
 
 	public void Lightning(Graphics g, Rectangle column3) {
 		g.setColor(Color.black);
-		g.fillRect(column3.x, column3.y, column3.width, column3.height);
+		// g.fillRect(column3.x, column3.y, column3.width, column3.height);
 		g.drawImage(lightning, column3.x, column3.y, 75, 30, null);
 	}
 
@@ -138,7 +139,7 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 			if (yMotion > 0) {
 				yMotion = 0;
 			}
-			yMotion -= 7;
+			yMotion -= 5;
 		}
 		if (highScore1 < score) {
 			highScore1 = score;
@@ -157,7 +158,6 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 	public void actionPerformed(ActionEvent e) {
 		int speed = 5;
 		ticks++;
-
 		if (started) {
 			// motion of jet
 			for (int i = 0; i < jet.size(); i++) {
@@ -169,7 +169,7 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 				column2.x += speed;
 			} // motion of bird
 			if (ticks % 2 == 0 && yMotion < 15) {
-				yMotion += 2;
+				yMotion += 1;
 				try {
 					Thread.sleep(50);
 				} catch (InterruptedException e1) {
@@ -193,9 +193,9 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 		for (Rectangle column2 : cloud) {
 			if (bird.intersects(column2)) {
 				cloudIntersects = true;
+				gameOver = true;
 			}
 		}
-
 		render.repaint();
 	}
 
@@ -204,24 +204,19 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		g.setColor(new Color(87, 247, 242)); // sky color
 		g.fillRect(0, 0, WIDTH, HEIGHT / 8);
-		g.setColor(new Color(3, 20, 141)); // water color
-		g.fillRect(0, HEIGHT - 120, WIDTH, 120);
-		g.setColor(new Color(5, 23, 75)); // wave color
-		g.fillRect(0, HEIGHT - 120, WIDTH, 20);
+		// wave color
+		g.drawImage(wave, 0, HEIGHT - 120, wave.getWidth(), wave.getHeight() + 30, null);
+		g.drawImage(wave, wave.getWidth(), HEIGHT - 120, wave.getWidth(), wave.getHeight() + 30, null);
+		g.drawImage(wave, wave.getWidth() * 2, HEIGHT - 120, wave.getWidth(), wave.getHeight() + 30, null);
+		g.drawImage(wave, wave.getWidth() * 3, HEIGHT - 120, wave.getWidth(), wave.getHeight() + 30, null);
+		g.drawImage(wave, wave.getWidth() * 4, HEIGHT - 120, wave.getWidth(), wave.getHeight() + 30, null);
 		g.setColor(Color.WHITE); // bird color
-		g.fillRect(bird.x, bird.y, bird.width, bird.height);
-		for (Rectangle column : jet) {
-			Jet(g, column);
-		}
-		for (Rectangle column2 : cloud) {
-			Cloud(g, column2);			
-		}	
+		// g.fillRect(bird.x, bird.y, bird.width, bird.height);
 		g.drawImage(birdImageCombine, bird.x, bird.y, null); // bird image
-		if(cloudIntersects==true){  //lightining
-			g.drawImage(lightning, bird.x+20, bird.y-20, null);
+		// g.drawImage(lightning, bird.x, bird.y, null); // bird image
+		if (cloudIntersects == true) { // draw lightning
+			g.drawImage(lightning, bird.x, bird.y - 20, null);
 		}
-		
-		//g.drawImage(lightning, bird.x, bird.y, null); // bird image
 		g.setColor(Color.white); // text color
 		g.setFont(new Font("Arial", 1, 100)); // text property for first page
 		if (!started) {
@@ -232,33 +227,55 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 			g.setColor(new Color(255, 255, 0));
 			g.drawString("Tap to Start", WIDTH / 2 - 275, HEIGHT / 2 - 50);
 		}
-		if (gameOver) {
+		if (gameOver && started) {
+			g.drawImage(lightning, bird.x, bird.y - 20, null);
 			
-			// jframe.setVisible(false);
-			// CloseFrame();
-			try {
-				Thread.sleep(900);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			g.drawString("Game Over", WIDTH / 2 - 200, HEIGHT / 2 - 100);
-			g.setFont(new Font("Arial", 1, 50));
-			g.drawString("High Score: " + String.valueOf(highScore1), WIDTH / 2 - 150, HEIGHT / 2 + 100); // high
-																											// score
-			g.drawString("Score:  " + String.valueOf(score), WIDTH / 2 - 155, HEIGHT / 2 + 200); // your
+//			try {
+//				Thread.sleep(500);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			gameOverApproved = true;
+
+			// g.drawString("Game Over", WIDTH / 2 - 200, HEIGHT / 2 - 100);
+			// g.setFont(new Font("Arial", 1, 50));
+			// g.drawString("High Score: " + String.valueOf(highScore1), WIDTH /
+			// 2 - 150, HEIGHT / 2 + 100); // high
+			// // score
+			// g.drawString("Score: " + String.valueOf(score), WIDTH / 2 - 155,
+			// HEIGHT / 2 + 200); // your
 
 		}
+ 
+//		if(gameOver && started){
+//			g.drawImage(lightning, bird.x, bird.y - 20, null);
+//		}
+		
 		if (!gameOver && started) {
 			addjet(true);
 			addCloud(true);
+			for (Rectangle column : jet) {
+				Jet(g, column);
+			}
+			for (Rectangle column2 : cloud) {
+				Cloud(g, column2);
+			}
 			g.setFont(new Font("Arial", 1, 25)); // text property
 			g.drawString("High Score: " + String.valueOf(highScore1), 25, 100); // high
 																				// score
 			g.drawString("Score:  " + String.valueOf(score), WIDTH - 150, 100); // your
-																				// score
+			// condition for 4sec pause in beginning // score
+			if (!tapped) {
+				try {
+					Thread.sleep(400);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				tapped = true;
+			}
 		}
-
 	}
 
 	public class Render extends JPanel {
@@ -268,10 +285,19 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			Activity.activity.Repaint(g);
-			if (gameOver) {
+			if (gameOver == true) {
+				try {
+					activity.wait(10);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				jframe.setVisible(false);
 				LastPage lp = new LastPage();
 				lp.ConnectLastpage();
+				gameOverApproved = false;
+				// render.notify();
+
 			}
 		}
 
