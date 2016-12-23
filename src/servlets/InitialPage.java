@@ -25,6 +25,7 @@ public class InitialPage {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@SuppressWarnings("static-access")
 			public void run() {
 				try {
 					InitialPage window = new InitialPage();
@@ -82,7 +83,7 @@ public class InitialPage {
 
 		lable = new JLabel();
 		lable.setFont(new Font("Comic Sans MS", Font.BOLD, 24));
-		lable.setText("   Your High Score : "+HIscore);
+		lable.setText("   Your High Score : " + HIscore);
 		lable.setForeground(Color.YELLOW);
 		lable.setBounds(Width / 2 - 250, Height / 2 + 155, 380, 50);
 		frame.getContentPane().add(lable);
@@ -94,7 +95,13 @@ public class InitialPage {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("hello");
+			// System.out.println("hello");
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			frame.setVisible(false);
 			Activity a = new Activity();
 			a.ConnectActivity();
