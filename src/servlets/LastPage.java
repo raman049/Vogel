@@ -5,27 +5,26 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
-
-
 
 public class LastPage {
-	private JLabel lable;
 	static FrameClass frame1;
-	static highScore hiScore;
 	static int Height;
 	static int Width;
 	static highScore HIscore;
+	static BufferedImage background;
+	int score;
+
 	public class Action {
 
 	}
-
-	private JFrame frame11;
 
 	/**
 	 * Launch the application.
@@ -34,8 +33,7 @@ public class LastPage {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					LastPage window = new LastPage();
-					window.frame1.setVisible(true);
+					LastPage.frame1.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -57,15 +55,21 @@ public class LastPage {
 
 		frame1 = new FrameClass();
 		Height = frame1.getHeight();
-		Width =frame1.getWidth();
+		Width = frame1.getWidth();
 		frame1.getContentPane().setForeground(new Color(0, 0, 205));
 		frame1.getContentPane().setFont(new Font("Lucida Grande", Font.BOLD, 50));
-		frame1.getContentPane().setBackground(Color.RED);
-		//frame.setBackground(Color.RED);
+		frame1.getContentPane().setBackground(Color.CYAN);
+		// frame.setBackground(Color.CYAN);
 		frame1.getContentPane().setLayout(null);
-		
+
+		try {
+			background = ImageIO.read(new File("InjuredBird.png"));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		// High Score
-		String HIscore ="";
+		String HIscore = "";
 		try {
 			HIscore = highScore.updateHiScore(0).toString();
 		} catch (IOException e) {
@@ -73,38 +77,40 @@ public class LastPage {
 			e.printStackTrace();
 		}
 		JLabel txtHighScore = new JLabel();
-		txtHighScore.setText("Your High Score: "+HIscore);
-		txtHighScore.setForeground(Color.YELLOW);
-		txtHighScore.setFont(new Font("Comic Sans MS", Font.BOLD, 24));
-		txtHighScore.setBounds(Width/2-150, Height/2-200, 380, 50);
+		txtHighScore.setText("High Score: " + HIscore);
+		txtHighScore.setForeground(Color.MAGENTA);
+		txtHighScore.setFont(new Font("Comic Sans MS", Font.BOLD, 36));
+		txtHighScore.setBounds(Width / 2 - 150, Height / 2 - 200, 380, 50);
 		frame1.getContentPane().add(txtHighScore);
-		//txtHighScore.setColumns(10);
-
+		score = Activity.getFinalScore();
 		JLabel txtYourScore = new JLabel();
-		txtYourScore.setFont(new Font("Comic Sans MS", Font.BOLD, 24));
-		txtYourScore.setText("Your Score:  ");
+		txtYourScore.setFont(new Font("Comic Sans MS", Font.BOLD, 36));
+		txtYourScore.setText("Your Score:  " +score);
 		txtYourScore.setForeground(Color.YELLOW);
 		txtYourScore.setForeground(new Color(0, 0, 128));
-		txtYourScore.setBounds(Width/2-150, Height/2-250, 380, 50);
+		txtYourScore.setBounds(Width / 2 - 150, Height / 2 - 100, 380, 50);
 		frame1.getContentPane().add(txtYourScore);
-		//txtYourScore.setColumns(10);
+		// txtYourScore.setColumns(10);
 
 		JButton btnNewButton = new JButton("REPLAY");
-		btnNewButton.setForeground(Color.GREEN);
-		btnNewButton.setFont(new Font("Comic Sans MS", Font.BOLD, 20));
-		btnNewButton.setBounds(Width/2-60, Height/2-100, 120, 50);
+		btnNewButton.setForeground(Color.BLUE);
+		btnNewButton.setFont(new Font("Comic Sans MS", Font.BOLD, 24));
+		btnNewButton.setBounds(Width / 2 - 60, Height / 2 - 60, 120, 50);
 		frame1.getContentPane().add(btnNewButton);
 		btnNewButton.addActionListener(new CustomActionListener());
 
 		JButton btnNewButton_1 = new JButton("EXIT");
-		btnNewButton_1.setForeground(Color.GREEN);
-		btnNewButton_1.setFont(new Font("Comic Sans MS", Font.BOLD, 20));
-		btnNewButton_1.setBounds(Width/2-60, Height/2+10, 120, 50);
+		btnNewButton_1.setForeground(Color.BLUE);
+		btnNewButton_1.setFont(new Font("Comic Sans MS", Font.BOLD, 24));
+		btnNewButton_1.setBounds(Width / 2 - 60, Height / 2 + 130, 120, 50);
 		frame1.getContentPane().add(btnNewButton_1);
-		//frame1.setResizable(false);
+		// frame1.setResizable(false);
 
 		btnNewButton_1.addActionListener(new EndButtonAction());
 
+		JLabel imagelabel = new JLabel(new ImageIcon(background));
+		imagelabel.setBounds(Width / 2 - 250, Height / 2 - 250, 500, 500);
+		frame1.getContentPane().add(imagelabel);
 	}
 
 	class CustomActionListener implements ActionListener {
@@ -113,7 +119,7 @@ public class LastPage {
 		public void actionPerformed(ActionEvent e) {
 			// TODO Start here
 			frame1.setVisible(false);
-			System.out.println("hello");
+			// System.out.println("hello");
 			// new Activity();
 			Activity a = new Activity();
 			a.ConnectActivity();
@@ -132,8 +138,7 @@ public class LastPage {
 	}
 
 	public void ConnectLastpage() {
-		LastPage lastPage = new LastPage();
-		lastPage.frame1.setVisible(true);
+		LastPage.frame1.setVisible(true);
 	}
 
 }
