@@ -32,8 +32,10 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 	public boolean gameOver, started, cloudIntersects, tapped;
 	FrameClass jframe;
 	static int highScore1;
-	public BufferedImage plane2Image, cloudImage, birdImage1, birdImage2, birdImageCombine, lightning, wave;
-	public Boolean gameOverApproved;
+	public BufferedImage plane2Image, cloudImage, birdImage1, birdImage2, birdImageCombine, lightning, wave, shark;
+	public boolean gameOverApproved, close2water;
+	static int count = 0;
+	private static int finalScore;
 
 	public void ActivityMethod() {
 		jframe = new FrameClass();
@@ -71,6 +73,7 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 			plane2Image = ImageIO.read(new File("Plane.png"));
 			cloudImage = ImageIO.read(new File("Cloud.png"));
 			lightning = ImageIO.read(new File("lightning.png"));
+			shark = ImageIO.read(new File("shark.png"));
 			birdImage1 = ImageIO.read(new File("bird1_sm.png"));
 			birdImage2 = ImageIO.read(new File("bird2_sm.png"));
 			wave = ImageIO.read(new File("wave.png"));
@@ -115,14 +118,9 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 
 	public void Cloud(Graphics g, Rectangle column2) {
 		g.setColor(Color.black);
-		// g.fillRect(column2.x, column2.y, column2.width, column2.height);
-		g.drawImage(cloudImage, column2.x, column2.y, 75, 30, null);
-	}
-
-	public void Lightning(Graphics g, Rectangle column3) {
-		g.setColor(Color.black);
-		// g.fillRect(column3.x, column3.y, column3.width, column3.height);
-		g.drawImage(lightning, column3.x, column3.y, 75, 30, null);
+		g.fillRect(column2.x, column2.y, column2.width, column2.height);
+		g.drawImage(cloudImage, column2.x - cloudImage.getWidth() / 6, column2.y - cloudImage.getHeight()/6,
+				cloudImage.getWidth() / 2, cloudImage.getHeight() / 3, null);
 	}
 
 	public void Fly() {
@@ -151,7 +149,7 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 			}
 
 		}
-
+		finalScore = score;
 	}
 
 	@Override
@@ -183,7 +181,8 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 
 		// condition for game over
 		if (bird.y > HEIGHT - 120 || bird.y < HEIGHT / 90) {
-			gameOver = true;
+			// gameOver = true;
+			close2water = true;
 		}
 		for (Rectangle column : jet) {
 			if (bird.intersects(column)) {
@@ -193,7 +192,7 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 		for (Rectangle column2 : cloud) {
 			if (bird.intersects(column2)) {
 				cloudIntersects = true;
-				gameOver = true;
+				// gameOver = true;
 			}
 		}
 		render.repaint();
@@ -210,12 +209,23 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 		g.drawImage(wave, wave.getWidth() * 2, HEIGHT - 120, wave.getWidth(), wave.getHeight() + 30, null);
 		g.drawImage(wave, wave.getWidth() * 3, HEIGHT - 120, wave.getWidth(), wave.getHeight() + 30, null);
 		g.drawImage(wave, wave.getWidth() * 4, HEIGHT - 120, wave.getWidth(), wave.getHeight() + 30, null);
-		g.setColor(Color.WHITE); // bird color
-		// g.fillRect(bird.x, bird.y, bird.width, bird.height);
+		// g.drawImage(shark, WIDTH / 2 - 40, HEIGHT - 160, shark.getWidth() /
+		// 2, shark.getHeight() / 2, null);
+
+		// g.drawImage(lightning, bird.x, bird.y - 20, null);
 		g.drawImage(birdImageCombine, bird.x, bird.y, null); // bird image
-		// g.drawImage(lightning, bird.x, bird.y, null); // bird image
 		if (cloudIntersects == true) { // draw lightning
 			g.drawImage(lightning, bird.x, bird.y - 20, null);
+			count++;
+		}
+		if (close2water == true) { // draw shark
+			g.drawImage(shark, bird.x - shark.getWidth() / 3 + count * 2, bird.y - count * 2, shark.getWidth() / 2,
+					shark.getHeight() / 2, null);
+			count++;
+		}
+		if (count == 18) {
+			gameOver = true;
+			count = 0;
 		}
 		g.setColor(Color.white); // text color
 		g.setFont(new Font("Arial", 1, 100)); // text property for first page
@@ -227,31 +237,7 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 			g.setColor(new Color(255, 255, 0));
 			g.drawString("Tap to Start", WIDTH / 2 - 275, HEIGHT / 2 - 50);
 		}
-		if (gameOver && started) {
-			g.drawImage(lightning, bird.x, bird.y - 20, null);
-			
-//			try {
-//				Thread.sleep(500);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			gameOverApproved = true;
 
-			// g.drawString("Game Over", WIDTH / 2 - 200, HEIGHT / 2 - 100);
-			// g.setFont(new Font("Arial", 1, 50));
-			// g.drawString("High Score: " + String.valueOf(highScore1), WIDTH /
-			// 2 - 150, HEIGHT / 2 + 100); // high
-			// // score
-			// g.drawString("Score: " + String.valueOf(score), WIDTH / 2 - 155,
-			// HEIGHT / 2 + 200); // your
-
-		}
- 
-//		if(gameOver && started){
-//			g.drawImage(lightning, bird.x, bird.y - 20, null);
-//		}
-		
 		if (!gameOver && started) {
 			addjet(true);
 			addCloud(true);
@@ -261,10 +247,11 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 			for (Rectangle column2 : cloud) {
 				Cloud(g, column2);
 			}
+			g.setColor(new Color(255, 0, 0));
 			g.setFont(new Font("Arial", 1, 25)); // text property
-			g.drawString("High Score: " + String.valueOf(highScore1), 25, 100); // high
-																				// score
-			g.drawString("Score:  " + String.valueOf(score), WIDTH - 150, 100); // your
+			g.drawString("High Score: " + String.valueOf(highScore1), WIDTH / 90, HEIGHT - HEIGHT / 9); // high
+			// score
+			g.drawString("Score:  " + String.valueOf(score), WIDTH - WIDTH / 6, HEIGHT - HEIGHT / 9); // your
 			// condition for 4sec pause in beginning // score
 			if (!tapped) {
 				try {
@@ -286,12 +273,12 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 			super.paintComponent(g);
 			Activity.activity.Repaint(g);
 			if (gameOver == true) {
-				try {
-					activity.wait(10);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				// try {
+				// //activity.wait(10);
+				// } catch (InterruptedException e) {
+				// // TODO Auto-generated catch block
+				// e.printStackTrace();
+				// }
 				jframe.setVisible(false);
 				LastPage lp = new LastPage();
 				lp.ConnectLastpage();
@@ -303,11 +290,11 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 
 	}
 
-	public static void main(String arg[]) {
-		activity = new Activity();
-		activity.ConnectActivity();
-
-	}
+	// public static void main(String arg[]) {
+	// activity = new Activity();
+	// activity.ConnectActivity();
+	//
+	// }
 
 	public void ConnectActivity() {
 		activity = new Activity();
@@ -368,6 +355,14 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 
 	public void setJframe(FrameClass jframe) {
 		this.jframe = jframe;
+	}
+
+	public static int getFinalScore() {
+		return finalScore;
+	}
+
+	public void setFinalScore(int finalScore) {
+		this.finalScore = finalScore;
 	}
 
 }
