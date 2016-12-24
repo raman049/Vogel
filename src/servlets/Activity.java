@@ -70,7 +70,7 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 			hs = highScore.updateHiScore(0).toString();
 			highScore1 = Integer.valueOf(hs);
 			// for background image
-			plane2Image = ImageIO.read(new File("Plane.png"));
+			plane2Image = ImageIO.read(new File("plane2.png"));
 			cloudImage = ImageIO.read(new File("Cloud.png"));
 			lightning = ImageIO.read(new File("lightning.png"));
 			shark = ImageIO.read(new File("shark.png"));
@@ -89,7 +89,7 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 		int height = 30;
 		if (start) {
 			// position of jets
-			jet.add(new Rectangle(WIDTH + random.nextInt(100) + width + jet.size() * 300, 20 + random.nextInt(200),
+			jet.add(new Rectangle(WIDTH + random.nextInt(100) + width + jet.size() * 300, 30 + random.nextInt(250),
 					width, height));
 		} else {
 			jet.add(new Rectangle(jet.get(jet.size() - 1).x + 600, HEIGHT - height - 120, width, height));
@@ -113,13 +113,14 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 	public void Jet(Graphics g, Rectangle column) {
 		g.setColor(Color.black);
 		// g.fillRect(column.x, column.y, column.width, column.height);
-		g.drawImage(plane2Image, column.x, column.y, 75, 30, null);
+		g.drawImage(plane2Image, column.x - plane2Image.getWidth() / 6, column.y - plane2Image.getHeight() / 6,
+				plane2Image.getWidth() / 2, plane2Image.getHeight() / 2, null);
 	}
 
 	public void Cloud(Graphics g, Rectangle column2) {
 		g.setColor(Color.black);
 		g.fillRect(column2.x, column2.y, column2.width, column2.height);
-		g.drawImage(cloudImage, column2.x - cloudImage.getWidth() / 6, column2.y - cloudImage.getHeight()/6,
+		g.drawImage(cloudImage, column2.x - cloudImage.getWidth() / 6, column2.y - cloudImage.getHeight() / 6,
 				cloudImage.getWidth() / 2, cloudImage.getHeight() / 3, null);
 	}
 
@@ -180,53 +181,37 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 		bird.y += yMotion;
 
 		// condition for game over
-		if (bird.y > HEIGHT - 120 || bird.y < HEIGHT / 90) {
-			// gameOver = true;
-			close2water = true;
+		if (bird.y > HEIGHT - 120) {
+			close2water = true; // close to water
+		}
+		// condition for game over
+		if (bird.y < HEIGHT / 90) {
+			cloudIntersects = true;// touches the sky
 		}
 		for (Rectangle column : jet) {
 			if (bird.intersects(column)) {
-				gameOver = true;
+				gameOver = true; // touches jets
 			}
 		}
 		for (Rectangle column2 : cloud) {
 			if (bird.intersects(column2)) {
-				cloudIntersects = true;
-				// gameOver = true;
+				cloudIntersects = true; // touches cloud
 			}
 		}
 		render.repaint();
 	}
 
 	public void Repaint(Graphics g) {
-		g.setColor(new Color(6, 220, 250)); // background color
+		g.setColor(new Color(153,204,255)); // background color
 		g.fillRect(0, 0, WIDTH, HEIGHT);
-		g.setColor(new Color(87, 247, 242)); // sky color
-		g.fillRect(0, 0, WIDTH, HEIGHT / 8);
+		g.setColor(new Color(0, 220, 255)); // sky color
+		g.fillRect(0, 0, WIDTH, HEIGHT / 6);
 		// wave color
 		g.drawImage(wave, 0, HEIGHT - 120, wave.getWidth(), wave.getHeight() + 30, null);
 		g.drawImage(wave, wave.getWidth(), HEIGHT - 120, wave.getWidth(), wave.getHeight() + 30, null);
 		g.drawImage(wave, wave.getWidth() * 2, HEIGHT - 120, wave.getWidth(), wave.getHeight() + 30, null);
 		g.drawImage(wave, wave.getWidth() * 3, HEIGHT - 120, wave.getWidth(), wave.getHeight() + 30, null);
 		g.drawImage(wave, wave.getWidth() * 4, HEIGHT - 120, wave.getWidth(), wave.getHeight() + 30, null);
-		// g.drawImage(shark, WIDTH / 2 - 40, HEIGHT - 160, shark.getWidth() /
-		// 2, shark.getHeight() / 2, null);
-
-		// g.drawImage(lightning, bird.x, bird.y - 20, null);
-		g.drawImage(birdImageCombine, bird.x, bird.y, null); // bird image
-		if (cloudIntersects == true) { // draw lightning
-			g.drawImage(lightning, bird.x, bird.y - 20, null);
-			count++;
-		}
-		if (close2water == true) { // draw shark
-			g.drawImage(shark, bird.x - shark.getWidth() / 3 + count * 2, bird.y - count * 2, shark.getWidth() / 2,
-					shark.getHeight() / 2, null);
-			count++;
-		}
-		if (count == 18) {
-			gameOver = true;
-			count = 0;
-		}
 		g.setColor(Color.white); // text color
 		g.setFont(new Font("Arial", 1, 100)); // text property for first page
 		if (!started) {
@@ -263,6 +248,22 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 				tapped = true;
 			}
 		}
+		// g.drawImage(lightning, bird.x, bird.y - 20, null);
+
+		if (cloudIntersects == true) { // draw lightning
+			g.drawImage(lightning, bird.x, bird.y - 20, lightning.getWidth() / 3, lightning.getHeight() / 3, null);
+			count++;
+		}
+		if (close2water == true) { // draw shark
+			g.drawImage(shark, bird.x - shark.getWidth() / 3 + count * 2, bird.y - count * 2, shark.getWidth() / 2,
+					shark.getHeight() / 2, null);
+			count++;
+		}
+		if (count == 18) {
+			gameOver = true;
+			count = 0;
+		}
+		g.drawImage(birdImageCombine, bird.x, bird.y, null); // bird image
 	}
 
 	public class Render extends JPanel {
@@ -273,13 +274,14 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 			super.paintComponent(g);
 			Activity.activity.Repaint(g);
 			if (gameOver == true) {
-				// try {
-				// //activity.wait(10);
-				// } catch (InterruptedException e) {
-				// // TODO Auto-generated catch block
-				// e.printStackTrace();
-				// }
-				jframe.setVisible(false);
+				try {
+					new SoundX().sound1();
+					Thread.sleep(300);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				 jframe.setVisible(false);
 				LastPage lp = new LastPage();
 				lp.ConnectLastpage();
 				gameOverApproved = false;
@@ -362,7 +364,7 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 	}
 
 	public void setFinalScore(int finalScore) {
-		this.finalScore = finalScore;
+		Activity.finalScore = finalScore;
 	}
 
 }
