@@ -1,80 +1,118 @@
+
 package servlets;
 
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 public class InitialPage {
 
-	//private static JFrame frame;
-	private JTextField txtYourHighScore;
+	private JLabel lable;
 	static FrameClass frame;
-	static highScore hiScore;
+	static HighScore hiScore;
+	static int Height;
+	static int Width;
+	static Boolean playClip = true;
+	static Clip clip;
+
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		InitialPage ip = new InitialPage();
-		ip.initialize();
+		EventQueue.invokeLater(new Runnable() {
+			@SuppressWarnings("static-access")
+			public void run() {
+				try {
+					InitialPage window = new InitialPage();
+					window.frame.setVisible(true);
+				clip = AudioSystem.getClip();
+					clip.open(AudioSystem.getAudioInputStream(new File("SoundClips/latinHorn.wav")));
+					clip.loop(clip.LOOP_CONTINUOUSLY);
+					clip.start();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
 	}
-	
+
+	/**
+	 * Create the application.
+	 */
+	public InitialPage() {
+		initialize();
+	}
+
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
 		frame = new FrameClass();
+		Height = frame.getHeight();
+		Width = frame.getWidth();
 		frame.getContentPane().setForeground(new Color(0, 0, 205));
 		frame.getContentPane().setFont(new Font("Lucida Grande", Font.BOLD, 50));
 		frame.getContentPane().setBackground(Color.RED);
-		//frame.setBackground(Color.RED);
+		// frame.setBackground(Color.RED);
 		frame.getContentPane().setLayout(null);
-		// LABLE
-		JLabel lblNewLabel = new JLabel("VOGEL");
-		lblNewLabel.setBounds(310, 148, 190, 55);
-		lblNewLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 54));
-		frame.getContentPane().add(lblNewLabel);
-		// BUTTON
-		JButton btnNewButton = new JButton("START");
-		btnNewButton.setBounds(345, 400, 117, 61);
-		btnNewButton.setForeground(new Color(0, 0, 139));
-		btnNewButton.setBackground(new Color(105, 105, 105));
-		frame.getContentPane().add(btnNewButton);
-		btnNewButton.addActionListener(new Action());
+		frame.setResizable(false);
 
-		// TEXT FIELD
-		 txtYourHighScore = new JTextField();
-		String HIscore ="";
+		JLabel lblNewLabel = new JLabel("VOGEL");
+		lblNewLabel.setForeground(Color.BLUE);
+		lblNewLabel.setFont(new Font("Comic Sans MS", Font.BOLD, 150));
+		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel.setBounds(243, 32, 500, 166);
+		frame.getContentPane().add(lblNewLabel);
+
+		JButton btnNewButton = new JButton("PLAY");
+		btnNewButton.setForeground(Color.GREEN);
+		btnNewButton.addActionListener(new Action());
+		btnNewButton.setBackground(Color.LIGHT_GRAY);
+		btnNewButton.setFont(new Font("Comic Sans MS", Font.BOLD, 26));
+		btnNewButton.setBounds(Width / 2 - 60, Height / 2 - 10, 120, 50);
+		frame.getContentPane().add(btnNewButton);
+		// High Score
+		String HIscore = "";
 		try {
-			HIscore = highScore.updateHiScore(0).toString();
+			HIscore = HighScore.updateHiScore(0).toString();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		txtYourHighScore.setColumns(30);
-		txtYourHighScore.setForeground(new Color(90, 80, 139));
-		txtYourHighScore.setText("YOUR HIGH SCORE: "+HIscore);
-		txtYourHighScore.setBounds(310, 677, 300, 45);
-		txtYourHighScore.setVisible(true);
-		frame.getContentPane().add(txtYourHighScore);
-		
+		lable = new JLabel();
+		lable.setFont(new Font("Comic Sans MS", Font.BOLD, 24));
+		lable.setText("   Your High Score : " + HIscore);
+		lable.setForeground(Color.YELLOW);
+		lable.setBounds(Width / 2 - 250, Height / 2 + 155, 380, 50);
+		frame.getContentPane().add(lable);
 	}
 
 	static class Action implements ActionListener {
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("hello");
+			try {
+				clip.close();// close music
+				Thread.sleep(500);// pause for 900 msec
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			frame.setVisible(false);
 			Activity a = new Activity();
 			a.ConnectActivity();
 		}
 
 	}
-
 }
