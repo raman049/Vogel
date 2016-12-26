@@ -6,8 +6,11 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
@@ -16,9 +19,11 @@ public class InitialPage {
 
 	private JLabel lable;
 	static FrameClass frame;
-	static highScore hiScore;
+	static HighScore hiScore;
 	static int Height;
 	static int Width;
+	static Boolean playClip = true;
+	static Clip clip;
 
 	/**
 	 * Launch the application.
@@ -30,11 +35,16 @@ public class InitialPage {
 				try {
 					InitialPage window = new InitialPage();
 					window.frame.setVisible(true);
+				clip = AudioSystem.getClip();
+					clip.open(AudioSystem.getAudioInputStream(new File("SoundClips/latinHorn.wav")));
+					clip.loop(clip.LOOP_CONTINUOUSLY);
+					clip.start();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		});
+
 	}
 
 	/**
@@ -75,29 +85,26 @@ public class InitialPage {
 		// High Score
 		String HIscore = "";
 		try {
-			HIscore = highScore.updateHiScore(0).toString();
+			HIscore = HighScore.updateHiScore(0).toString();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		lable = new JLabel();
 		lable.setFont(new Font("Comic Sans MS", Font.BOLD, 24));
 		lable.setText("   Your High Score : " + HIscore);
 		lable.setForeground(Color.YELLOW);
 		lable.setBounds(Width / 2 - 250, Height / 2 + 155, 380, 50);
 		frame.getContentPane().add(lable);
-		// lable.setColumns(10);
-		// frame.setBounds(100,100,Width,Height);
 	}
 
 	static class Action implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// System.out.println("hello");
 			try {
-				Thread.sleep(500);
+				clip.close();// close music
+				Thread.sleep(500);// pause for 900 msec
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
