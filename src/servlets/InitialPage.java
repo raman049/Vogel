@@ -6,9 +6,10 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.JButton;
@@ -24,6 +25,7 @@ public class InitialPage {
 	static int Width;
 	static Boolean playClip = true;
 	static Clip clip;
+	static ResourceLoader a;
 
 	/**
 	 * Launch the application.
@@ -35,8 +37,10 @@ public class InitialPage {
 				try {
 					InitialPage window = new InitialPage();
 					window.frame.setVisible(true);
-				clip = AudioSystem.getClip();
-					clip.open(AudioSystem.getAudioInputStream(new File("SoundClips/latinHorn.wav")));
+					clip = AudioSystem.getClip();
+					URL url = getClass().getClassLoader().getResource("SoundClips/latinHorn.wav");
+					AudioInputStream audioStream = AudioSystem.getAudioInputStream(url);
+					clip.open(audioStream);
 					clip.loop(clip.LOOP_CONTINUOUSLY);
 					clip.start();
 				} catch (Exception e) {
@@ -104,7 +108,7 @@ public class InitialPage {
 		public void actionPerformed(ActionEvent e) {
 			try {
 				clip.close();// close music
-				Thread.sleep(500);// pause for 900 msec
+				Thread.sleep(500);// pause for 500 msec
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
