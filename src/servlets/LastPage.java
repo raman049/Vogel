@@ -6,10 +6,11 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
@@ -68,7 +69,9 @@ public class LastPage {
 
 		try {
 			clip = AudioSystem.getClip();
-			clip.open(AudioSystem.getAudioInputStream(new File("SoundClips/latinHorn.wav")));
+			URL url = getClass().getClassLoader().getResource("SoundClips/latinHorn.wav");
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream(url);
+			clip.open(audioStream);
 			clip.loop(Clip.LOOP_CONTINUOUSLY);
 			clip.start();
 		} catch (LineUnavailableException | IOException | UnsupportedAudioFileException e2) {
@@ -76,7 +79,7 @@ public class LastPage {
 			e2.printStackTrace();
 		}
 		try {
-			background = ImageIO.read(new File("images/InjuredBird.png"));
+			background = ImageIO.read(ResourceLoader.load("images/InjuredBird.png"));
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
