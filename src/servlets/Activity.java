@@ -12,8 +12,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -42,7 +42,7 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 	public boolean gameOverApproved, close2water;
 	static int count = 0;
 	private static int finalScore;
-	static Clip clip;
+	static Clip clip, clip2, clip3, clip4;
 
 	public void ActivityMethod() {
 		jframe = new FrameClass();
@@ -80,22 +80,23 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 			hs = HighScore.updateHiScore(0).toString();
 			highScore1 = Integer.valueOf(hs);
 			// for background image
-			plane2Image = ImageIO.read(new File("images/plane2.png"));
-			cloudImage = ImageIO.read(new File("images/Cloud.png"));
-			lightning = ImageIO.read(new File("images/lightning.png"));
-			shark = ImageIO.read(new File("images/shark.png"));
-			birdImage1 = ImageIO.read(new File("images/bird1_sm.png"));
-			birdImage2 = ImageIO.read(new File("images/bird2_sm.png"));
-			wave = ImageIO.read(new File("images/wave2.png"));
-			ship = ImageIO.read(new File("images/ship.png"));
-			sun = ImageIO.read(new File("images/sun.png"));
+			plane2Image = ImageIO.read(ResourceLoader.load("images/plane2.png"));
+			cloudImage = ImageIO.read(ResourceLoader.load("images/Cloud.png"));
+			lightning = ImageIO.read(ResourceLoader.load("images/lightning.png"));
+			shark = ImageIO.read(ResourceLoader.load("images/shark.png"));
+			birdImage1 = ImageIO.read(ResourceLoader.load("images/bird1_sm.png"));
+			birdImage2 = ImageIO.read(ResourceLoader.load("images/bird2_sm.png"));
+			wave = ImageIO.read(ResourceLoader.load("images/wave2.png"));
+			ship = ImageIO.read(ResourceLoader.load("images/ship.png"));
+			sun = ImageIO.read(ResourceLoader.load("images/sun.png"));
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} // add background music
 		try {
 			clip = AudioSystem.getClip();
-			clip.open(AudioSystem.getAudioInputStream(new File("SoundClips/soundIsland.wav")));
+			URL url = getClass().getClassLoader().getResource("SoundClips/soundIsland.wav");
+			clip.open(AudioSystem.getAudioInputStream(url));
 			FloatControl volume = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
 			volume.setValue(-5);
 			clip.loop(Clip.LOOP_CONTINUOUSLY);
@@ -163,7 +164,7 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 
 	public void Ship(Graphics g, Rectangle column3) {
 		g.setColor(Color.black);
-		 g.fillRect(column3.x, column3.y, column3.width, column3.height);
+		g.fillRect(column3.x, column3.y, column3.width, column3.height);
 
 		g.drawImage(ship, column3.x - ship.getWidth() / 7, column3.y - ship.getHeight() / 6, ship.getWidth() / 2,
 				ship.getHeight() / 3, null);
@@ -319,20 +320,34 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 
 		if (cloudIntersects == true) { // draw lightning
 			g.drawImage(lightning, bird.x, bird.y - 20, lightning.getWidth() / 3, lightning.getHeight() / 3, null);
-			new SoundX();
-			SoundX.soundElectric(true);
+			try {
+				clip2 = AudioSystem.getClip();
+				URL url = getClass().getClassLoader().getResource("SoundClips/soundElectric.wav");
+				clip2.open(AudioSystem.getAudioInputStream(url));
+				clip2.start();
+			} catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			count++;
 		}
 		if (close2water == true) { // draw shark
-			new SoundX();
-			SoundX.soundBubble(true);
+			try {
+				clip3 = AudioSystem.getClip();
+				URL url = getClass().getClassLoader().getResource("SoundClips/soundBubble.wav");
+				clip3.open(AudioSystem.getAudioInputStream(url));
+				clip3.start();
+			} catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			g.drawImage(shark, bird.x - shark.getWidth() / 3 + count * 2, bird.y - count * 2, shark.getWidth() / 2,
 					shark.getHeight() / 2, null);
 			count++;
 		}
 		if (count == 18) {
 			gameOver = true;
-			count = 0;
+			count = 0; 
 		}
 		g.drawImage(birdImageCombine, bird.x, bird.y, null); // bird image
 	}
@@ -392,7 +407,15 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
 		birdImageCombine = birdImage2;
-		SoundX.soundBird(true);
+		try {
+			clip4 = AudioSystem.getClip();
+			URL url = getClass().getClassLoader().getResource("SoundClips/soundBird.wav");
+			clip4.open(AudioSystem.getAudioInputStream(url));
+			clip4.start();
+		} catch (LineUnavailableException | IOException | UnsupportedAudioFileException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 
 	@Override
