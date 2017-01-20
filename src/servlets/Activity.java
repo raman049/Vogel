@@ -11,6 +11,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
@@ -84,11 +86,12 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 			cloudImage = ImageIO.read(ResourceLoader.load("images/Cloud.png"));
 			lightning = ImageIO.read(ResourceLoader.load("images/lightning.png"));
 			shark = ImageIO.read(ResourceLoader.load("images/shark.png"));
-			birdImage1 = ImageIO.read(ResourceLoader.load("images/bird1_sm.png"));
-			birdImage2 = ImageIO.read(ResourceLoader.load("images/bird2_sm.png"));
+			birdImage1 = ImageIO.read(ResourceLoader.load("images/bird1.png"));
+			birdImage2 = ImageIO.read(ResourceLoader.load("images/bird2.png"));
 			wave = ImageIO.read(ResourceLoader.load("images/wave2.png"));
 			ship = ImageIO.read(ResourceLoader.load("images/ship.png"));
 			sun = ImageIO.read(ResourceLoader.load("images/sun.png"));
+			
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -113,23 +116,23 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 		int height = 30;
 		if (start) {
 			// position of jets
-			jet.add(new Rectangle(WIDTH + random.nextInt(100) + width + jet.size() * 300, 30 + random.nextInt(250),
+			jet.add(new Rectangle(WIDTH + random.nextInt(100) + width + jet.size() * 300, 100 + random.nextInt(250),
 					width, height));
 		} else {
-			jet.add(new Rectangle(jet.get(jet.size() - 1).x + 600, HEIGHT - height - 120, width, height));
+			jet.add(new Rectangle(jet.get(jet.size() - 1).x + 600, 100 + random.nextInt(250), width, height));
 		}
 	}
 
 	public void addCloud(boolean start) {
-		int width = 75;
-		int height = 30;
+		int width = 150;
+		int height = 50;
 		if (start) {
 			// position of cloud
-			cloud.add(new Rectangle(random.nextInt(100) + width - cloud.size() * 300, 20 + random.nextInt(HEIGHT / 16),
+			cloud.add(new Rectangle(random.nextInt(100) + width - cloud.size() * 300, 20 + random.nextInt(HEIGHT /6),
 					width, height));
 		} else {
 			cloud.add(
-					new Rectangle(cloud.get(cloud.size() - 1).x - 600, 1 + random.nextInt(HEIGHT / 16), width, height));
+					new Rectangle(random.nextInt(200) + cloud.get(cloud.size() - 1).x - 600, 1 + random.nextInt(HEIGHT /6), width, height));
 
 		}
 	}
@@ -139,36 +142,35 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 		int height = 100;
 		if (start) {
 			// position of cloud
-			shipArray.add(new Rectangle(random.nextInt(100) + width - cloud.size() * 500, HEIGHT - 150, width, height));
+			shipArray.add(new Rectangle(random.nextInt(100) - width - shipArray.size() * 600, HEIGHT - 150, width, height));
 		} else {
-			// shipArray.add(
-			// new Rectangle(shipArray.get(shipArray.size() - 1).x - 600, 1 +
-			// random.nextInt(HEIGHT / 16), width, height));
+			 shipArray.add(
+			 new Rectangle(random.nextInt(100)-shipArray.get(shipArray.size() - 1).x - 600, 1 +
+			 random.nextInt(HEIGHT / 16), width, height));
 
 		}
 	}
 
 	public void Jet(Graphics g, Rectangle column) {
 		g.setColor(Color.black);
-		// g.fillRect(column.x, column.y, column.width, column.height);
-		g.drawImage(plane2Image, column.x - plane2Image.getWidth() / 6, column.y - plane2Image.getHeight() / 6,
-				plane2Image.getWidth() / 2, plane2Image.getHeight() / 2, null);
+		g.fillRect(column.x, column.y, column.width, column.height);
+		g.drawImage(plane2Image, column.x - plane2Image.getWidth() / 9 , column.y -plane2Image.getHeight() /10 ,
+				plane2Image.getWidth() / 3, plane2Image.getHeight() / 3, null);
 	}
 
 	public void Cloud(Graphics g, Rectangle column2) {
 		g.setColor(Color.black);
+		
+		g.drawImage(cloudImage, column2.x - cloudImage.getWidth() / 13, column2.y - cloudImage.getHeight() / 12,
+				WIDTH / 5, HEIGHT / 7, null);
 		g.fillRect(column2.x, column2.y, column2.width, column2.height);
-		g.drawImage(cloudImage, column2.x - cloudImage.getWidth() / 6, column2.y - cloudImage.getHeight() / 6,
-				cloudImage.getWidth() / 2, cloudImage.getHeight() / 3, null);
 	}
 
 	public void Ship(Graphics g, Rectangle column3) {
 		g.setColor(Color.black);
-		g.fillRect(column3.x, column3.y, column3.width, column3.height);
-
-		g.drawImage(ship, column3.x - ship.getWidth() / 7, column3.y - ship.getHeight() / 6, ship.getWidth() / 2,
+		g.drawImage(ship, column3.x - ship.getWidth() / 10, column3.y - ship.getHeight() / 6, ship.getWidth() / 2,
 				ship.getHeight() / 3, null);
-		// g.fillRect(column3.x, column3.y, column3.width, column3.height);
+		g.fillRect(column3.x, column3.y, column3.width, column3.height);
 	}
 
 	public void Fly() {
@@ -208,19 +210,19 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 			// motion of jet
 			for (int i = 0; i < jet.size(); i++) {
 				Rectangle column = jet.get(i);
-				column.x -= 5;
+				column.x -= 9;
 			} // motion of cloud
 			for (int i = 0; i < cloud.size(); i++) {
 				Rectangle column2 = cloud.get(i);
-				column2.x += 2;
+				column2.x += 4;
 			} // motion of ship
 			for (int i = 0; i < shipArray.size(); i++) {
 				Rectangle column3 = shipArray.get(i);
-				column3.x += 1;
+				column3.x += 4;
 			}
 			// motion of bird
 			if (ticks % 2 == 0 && yMotion < 15) {
-				yMotion += 1;
+				yMotion += 2;
 				try {
 					Thread.sleep(50);
 				} catch (InterruptedException e1) {
@@ -263,16 +265,28 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		g.setColor(new Color(153, 204, 255)); // sky color
 		g.fillRect(0, 0, WIDTH, HEIGHT / 6);
-		g.drawImage(sun, WIDTH - WIDTH / 5, HEIGHT / 4, 100, 100, null); // sun
+		g.drawImage(sun, WIDTH - 105, 60, 50, 50, null); // sun
 		g.setColor(Color.white); // text color
 		g.setFont(new Font("Arial", 1, 100)); // text property for first page
+		// wave color
+		g.drawImage(wave, 0, HEIGHT - HEIGHT / 5, wave.getWidth() / 2, wave.getHeight() / 2, null);
+		g.drawImage(wave, wave.getWidth() / 2 - 5, HEIGHT - HEIGHT / 5, wave.getWidth() / 2, wave.getHeight() / 2,
+				null);
+		g.drawImage(wave, wave.getWidth() - 10, HEIGHT - HEIGHT / 5, wave.getWidth() / 2, wave.getHeight() / 2, null);
+		g.drawImage(wave, wave.getWidth() - 15 + wave.getWidth() / 2, HEIGHT - HEIGHT / 5, wave.getWidth() / 2,
+				wave.getHeight() / 2, null);
+		g.drawImage(wave, wave.getWidth() * 2 - 20, HEIGHT - HEIGHT / 5, wave.getWidth() / 2, wave.getHeight() / 2,
+				null);
+		//add bird
+		g.drawImage(birdImageCombine, bird.x, bird.y, birdImage1.getWidth()/4, birdImage1.getHeight()/4, null); // bird image
+		
 		if (!started) {
-			g.setFont(new Font("Comic Sans MS", 1, 25));
+			g.setFont(new Font("Comic Sans MS", 1, 20));
 			g.setColor(new Color(255, 0, 0));
-			g.drawString("High Score: " + String.valueOf(highScore1), WIDTH / 2 - 100, HEIGHT / 10);
-			g.setFont(new Font("Comic Sans MS", 2, 100));
+			g.drawString("High Score: " + String.valueOf(highScore1), WIDTH / 2 - 100, HEIGHT / 5 - 10);
+			g.setFont(new Font("Comic Sans MS", Font.BOLD, 75));
 			g.setColor(new Color(255, 255, 0));
-			g.drawString("Tap to Start", WIDTH / 2 - 275, HEIGHT / 2 - 50);
+			g.drawString("Tap to Start", WIDTH / 2 - 250, HEIGHT / 2 - 50);
 		}
 
 		if (!gameOver && started) {
@@ -286,25 +300,15 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 				Cloud(g, column2);
 			}
 			for (Rectangle column3 : shipArray) {
-				// g.fillRect(column3.x, column3.y, column3.width,
-				// column3.height);
+				
 				Ship(g, column3);
 			}
-			// wave color
-			g.drawImage(wave, 0, HEIGHT - HEIGHT / 5, wave.getWidth() / 2, wave.getHeight() / 2, null);
-			g.drawImage(wave, wave.getWidth() / 2 - 5, HEIGHT - HEIGHT / 5, wave.getWidth() / 2, wave.getHeight() / 2,
-					null);
-			g.drawImage(wave, wave.getWidth() - 10, HEIGHT - HEIGHT / 5, wave.getWidth() / 2, wave.getHeight() / 2,
-					null);
-			g.drawImage(wave, wave.getWidth() - 15 + wave.getWidth() / 2, HEIGHT - HEIGHT / 5, wave.getWidth() / 2,
-					wave.getHeight() / 2, null);
-			g.drawImage(wave, wave.getWidth() * 2 - 20, HEIGHT - HEIGHT / 5, wave.getWidth() / 2, wave.getHeight() / 2,
-					null);
+
 			g.setColor(new Color(255, 0, 0));
-			g.setFont(new Font("Arial", 1, 25)); // text property
+			g.setFont(new Font("Georgia-Italic", 1, 20)); // text property
 			g.drawString("High Score: " + String.valueOf(highScore1), WIDTH / 90, HEIGHT - HEIGHT / 9); // high
 			// score
-			g.drawString("Score:  " + String.valueOf(score), WIDTH - WIDTH / 6, HEIGHT - HEIGHT / 9); // your
+			g.drawString("Score: " + String.valueOf(score), WIDTH - WIDTH / 6, HEIGHT - HEIGHT / 9); // your
 			// condition for 4sec pause in beginning // score
 			if (!tapped) {
 				try {
@@ -316,7 +320,6 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 				tapped = true;
 			}
 		}
-		// g.drawImage(lightning, bird.x, bird.y - 20, null);
 
 		if (cloudIntersects == true) { // draw lightning
 			g.drawImage(lightning, bird.x, bird.y - 20, lightning.getWidth() / 3, lightning.getHeight() / 3, null);
@@ -347,9 +350,9 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 		}
 		if (count == 18) {
 			gameOver = true;
-			count = 0; 
+			count = 0;
 		}
-		g.drawImage(birdImageCombine, bird.x, bird.y, null); // bird image
+		
 	}
 
 	public class Render extends JPanel {
@@ -406,7 +409,7 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
-		birdImageCombine = birdImage2;
+		//birdImageCombine = birdImage2;
 		try {
 			clip4 = AudioSystem.getClip();
 			URL url = getClass().getClassLoader().getResource("SoundClips/soundBird.wav");
@@ -421,11 +424,13 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
+		birdImageCombine = birdImage2;
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
+		birdImageCombine = birdImage2;
 	}
 
 	@Override
