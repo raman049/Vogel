@@ -11,30 +11,45 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
 public class Activity implements ActionListener, MouseListener, KeyListener {
 	public static Activity activity;
-	static highScore HIscore;
-	public ArrayList<Rectangle> jet;
-	public final int WIDTH = 800, HEIGHT = 800;
+	public ArrayList<Rectangle> jet, cloud, shipArray;
+	static int WIDTH, HEIGHT;
 	public Render render;
 	public Rectangle bird;
 	public Random random;
 	public int ticks, yMotion, score;
-	public boolean gameOver, started;
+	public boolean gameOver, started, cloudIntersects, tapped;
 	FrameClass jframe;
-	static int highScore1 =0;
+	static int highScore1;
+	public BufferedImage plane2Image, cloudImage, birdImage1, birdImage2, birdImageCombine, lightning, wave, shark,
+			ship, sun;
+	public boolean gameOverApproved, close2water;
+	static int count = 0;
+	private static int finalScore;
+	static Clip clip, clip2, clip3, clip4;
 
 	public void ActivityMethod() {
 		jframe = new FrameClass();
+		HEIGHT = jframe.getHeight();
+		WIDTH = jframe.getWidth();
 		Timer timer = new Timer(20, this);
-		bird = new Rectangle(WIDTH / 2 - 10, HEIGHT / 2 - 10, 20, 20);
+		bird = new Rectangle(jframe.getWidth() / 3, jframe.getHeight() / 2 - 10, 50, 30);
 		render = new Render();
 		random = new Random();
 		jframe.add(render);
@@ -42,6 +57,8 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 		jframe.addKeyListener(this);
 		jframe.setVisible(true);
 		jet = new ArrayList<Rectangle>();
+		cloud = new ArrayList<Rectangle>();
+		shipArray = new ArrayList<Rectangle>();
 		jframe.addKeyListener(new KeyAdapter() {
 			public void keyTyped(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_F2) {
@@ -51,42 +68,113 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 		});
 		addjet(true);
 		addjet(true);
-		addjet(true);
-		addjet(true);
+		addCloud(true);
+		addCloud(true);
+		addShip(true);
+		// SoundX.soundIsland(true);
 		timer.start();
+		// HIGH SCORE
+		String hs = "";
+		try {
+			// HIGH SCORE
+			hs = HighScore.updateHiScore(0).toString();
+			highScore1 = Integer.valueOf(hs);
+			// for background image
+			plane2Image = ImageIO.read(ResourceLoader.load("images/plane2.png"));
+			cloudImage = ImageIO.read(ResourceLoader.load("images/Cloud.png"));
+			lightning = ImageIO.read(ResourceLoader.load("images/lightning.png"));
+			shark = ImageIO.read(ResourceLoader.load("images/shark.png"));
+			birdImage1 = ImageIO.read(ResourceLoader.load("images/bird1_sm.png"));
+			birdImage2 = ImageIO.read(ResourceLoader.load("images/bird2_sm.png"));
+			wave = ImageIO.read(ResourceLoader.load("images/wave2.png"));
+			ship = ImageIO.read(ResourceLoader.load("images/ship.png"));
+			sun = ImageIO.read(ResourceLoader.load("images/sun.png"));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} // add background music
+		try {
+			clip = AudioSystem.getClip();
+			URL url = getClass().getClassLoader().getResource("SoundClips/soundIsland.wav");
+			clip.open(AudioSystem.getAudioInputStream(url));
+			FloatControl volume = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+			volume.setValue(-5);
+			clip.loop(Clip.LOOP_CONTINUOUSLY);
+			clip.start();
+		} catch (LineUnavailableException | IOException | UnsupportedAudioFileException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 	}
 
 	public void addjet(boolean start) {
-		int space = 300;
-		int width = 30;
-		int height = 20; // random.nextInt(300);
-
+		int width = 75;
+		int height = 30;
 		if (start) {
 			// position of jets
-			jet.add(new Rectangle(WIDTH + random.nextInt(100) + width + jet.size() * 300, 200 + random.nextInt(300),
+			jet.add(new Rectangle(WIDTH + random.nextInt(100) + width + jet.size() * 300, 30 + random.nextInt(250),
 					width, height));
-			jet.add(new Rectangle(WIDTH + width + (jet.size() - 1) * 300, 200 + random.nextInt(500), width, height));
 		} else {
 			jet.add(new Rectangle(jet.get(jet.size() - 1).x + 600, HEIGHT - height - 120, width, height));
-			jet.add(new Rectangle(jet.get(jet.size() - 1).x, 0, width, HEIGHT - height - space));
+		}
+	}
+
+	public void addCloud(boolean start) {
+		int width = 75;
+		int height = 30;
+		if (start) {
+			// position of cloud
+			cloud.add(new Rectangle(random.nextInt(100) + width - cloud.size() * 300, 20 + random.nextInt(HEIGHT / 16),
+					width, height));
+		} else {
+			cloud.add(
+					new Rectangle(cloud.get(cloud.size() - 1).x - 600, 1 + random.nextInt(HEIGHT / 16), width, height));
+
+		}
+	}
+
+	public void addShip(boolean start) {
+		int width = 200;
+		int height = 100;
+		if (start) {
+			// position of cloud
+			shipArray.add(new Rectangle(random.nextInt(100) + width - cloud.size() * 500, HEIGHT - 150, width, height));
+		} else {
+			// shipArray.add(
+			// new Rectangle(shipArray.get(shipArray.size() - 1).x - 600, 1 +
+			// random.nextInt(HEIGHT / 16), width, height));
 
 		}
 	}
 
 	public void Jet(Graphics g, Rectangle column) {
 		g.setColor(Color.black);
-		g.fillRect(column.x, column.y, column.width, column.height);
+		// g.fillRect(column.x, column.y, column.width, column.height);
+		g.drawImage(plane2Image, column.x - plane2Image.getWidth() / 6, column.y - plane2Image.getHeight() / 6,
+				plane2Image.getWidth() / 2, plane2Image.getHeight() / 2, null);
+	}
 
+	public void Cloud(Graphics g, Rectangle column2) {
+		g.setColor(Color.black);
+		g.fillRect(column2.x, column2.y, column2.width, column2.height);
+		g.drawImage(cloudImage, column2.x - cloudImage.getWidth() / 6, column2.y - cloudImage.getHeight() / 6,
+				cloudImage.getWidth() / 2, cloudImage.getHeight() / 3, null);
+	}
+
+	public void Ship(Graphics g, Rectangle column3) {
+		g.setColor(Color.black);
+		g.fillRect(column3.x, column3.y, column3.width, column3.height);
+
+		g.drawImage(ship, column3.x - ship.getWidth() / 7, column3.y - ship.getHeight() / 6, ship.getWidth() / 2,
+				ship.getHeight() / 3, null);
+		// g.fillRect(column3.x, column3.y, column3.width, column3.height);
 	}
 
 	public void Fly() {
 		if (gameOver) {
-			bird = new Rectangle(WIDTH / 2 - 10, HEIGHT / 2 - 10, 20, 20);
 			yMotion = 0;
 			score = 0;
-			addjet(true);
-			addjet(true);
 			gameOver = false;
 		}
 		if (!started) {
@@ -97,100 +185,171 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 			if (yMotion > 0) {
 				yMotion = 0;
 			}
-			yMotion -= 7;
+			yMotion -= 5;
 		}
 		if (highScore1 < score) {
 			highScore1 = score;
+			try {
+				HighScore.updateHiScore(score);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		}
+		finalScore = score;
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		int speed = 5;
+		// int speed = 5;
 		ticks++;
-		String hs ="";
-		try {
-			hs = highScore.updateHiScore(score).toString();
-			highScore1 = Integer.valueOf(hs);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 		if (started) {
-
+			// motion of jet
 			for (int i = 0; i < jet.size(); i++) {
 				Rectangle column = jet.get(i);
-				column.x -= speed;
+				column.x -= 5;
+			} // motion of cloud
+			for (int i = 0; i < cloud.size(); i++) {
+				Rectangle column2 = cloud.get(i);
+				column2.x += 2;
+			} // motion of ship
+			for (int i = 0; i < shipArray.size(); i++) {
+				Rectangle column3 = shipArray.get(i);
+				column3.x += 1;
 			}
+			// motion of bird
 			if (ticks % 2 == 0 && yMotion < 15) {
-				yMotion += 2;
+				yMotion += 1;
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		}
 
 		bird.y += yMotion;
 
 		// condition for game over
-		if (bird.y > HEIGHT - 120 || bird.y < 120) {
-			gameOver = true;
+		if (bird.y > HEIGHT - 120) {
+			close2water = true; // close to water
+		}
+		// condition for game over
+		if (bird.y < HEIGHT / 90) {
+			cloudIntersects = true;// touches the sky
 		}
 		for (Rectangle column : jet) {
 			if (bird.intersects(column)) {
-				gameOver = true;
+				gameOver = true; // touches jets
 			}
 		}
-
+		for (Rectangle column2 : cloud) {
+			if (bird.intersects(column2)) {
+				cloudIntersects = true; // touches cloud
+			}
+		}
+		for (Rectangle column3 : shipArray) {
+			if (bird.intersects(column3)) {
+				gameOver = true; // touches ship
+			}
+		}
 		render.repaint();
 	}
 
 	public void Repaint(Graphics g) {
-		g.setColor(new Color(6, 220, 250)); // background color
+		g.setColor(new Color(153, 204, 255)); // background color
 		g.fillRect(0, 0, WIDTH, HEIGHT);
-		g.setColor(new Color(87, 247, 242)); // sky color
-		g.fillRect(0, 0, WIDTH, 140);
-		g.setColor(new Color(3, 20, 141)); // water color
-		g.fillRect(0, HEIGHT - 120, WIDTH, 120);
-		g.setColor(new Color(5, 23, 75)); // wave color
-		g.fillRect(0, HEIGHT - 120, WIDTH, 20);
-		g.setColor(Color.red); // bird color
-		g.fillRect(bird.x, bird.y, bird.width, bird.height);
-		for (Rectangle column : jet) {
-			Jet(g, column);
-		}
+		g.setColor(new Color(153, 204, 255)); // sky color
+		g.fillRect(0, 0, WIDTH, HEIGHT / 6);
+		g.drawImage(sun, WIDTH - WIDTH / 5, HEIGHT / 4, 100, 100, null); // sun
 		g.setColor(Color.white); // text color
 		g.setFont(new Font("Arial", 1, 100)); // text property for first page
-
-		// Image image = null;
-		// File image2 = new File("vogel.jpg");
-		// try {
-		// image = ImageIO.read(image2);
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-
 		if (!started) {
-			g.drawString("Tap to Start", 75, HEIGHT / 2 - 50);
+			g.setFont(new Font("Comic Sans MS", 1, 25));
+			g.setColor(new Color(255, 0, 0));
+			g.drawString("High Score: " + String.valueOf(highScore1), WIDTH / 2 - 100, HEIGHT / 10);
+			g.setFont(new Font("Comic Sans MS", 2, 100));
+			g.setColor(new Color(255, 255, 0));
+			g.drawString("Tap to Start", WIDTH / 2 - 275, HEIGHT / 2 - 50);
 		}
-		if (gameOver) {
-			// jframe.setVisible(false);
-			// CloseFrame();
 
-			g.drawString("Game Over", WIDTH / 2 - 200, HEIGHT / 2 - 100);
-			g.setFont(new Font("Arial", 1, 50));
-			g.drawString("High Score: " + String.valueOf(highScore1), WIDTH / 2 - 150, HEIGHT / 2 + 100); // high
-																											// score
-			g.drawString("Score:  " + String.valueOf(score), WIDTH / 2 - 155, HEIGHT / 2 + 200); // your
-
-		}
 		if (!gameOver && started) {
 			addjet(true);
+			addCloud(true);
+			addShip(true);
+			for (Rectangle column : jet) {
+				Jet(g, column);
+			}
+			for (Rectangle column2 : cloud) {
+				Cloud(g, column2);
+			}
+			for (Rectangle column3 : shipArray) {
+				// g.fillRect(column3.x, column3.y, column3.width,
+				// column3.height);
+				Ship(g, column3);
+			}
+			// wave color
+			g.drawImage(wave, 0, HEIGHT - HEIGHT / 5, wave.getWidth() / 2, wave.getHeight() / 2, null);
+			g.drawImage(wave, wave.getWidth() / 2 - 5, HEIGHT - HEIGHT / 5, wave.getWidth() / 2, wave.getHeight() / 2,
+					null);
+			g.drawImage(wave, wave.getWidth() - 10, HEIGHT - HEIGHT / 5, wave.getWidth() / 2, wave.getHeight() / 2,
+					null);
+			g.drawImage(wave, wave.getWidth() - 15 + wave.getWidth() / 2, HEIGHT - HEIGHT / 5, wave.getWidth() / 2,
+					wave.getHeight() / 2, null);
+			g.drawImage(wave, wave.getWidth() * 2 - 20, HEIGHT - HEIGHT / 5, wave.getWidth() / 2, wave.getHeight() / 2,
+					null);
+			g.setColor(new Color(255, 0, 0));
 			g.setFont(new Font("Arial", 1, 25)); // text property
-			g.drawString("High Score: " + String.valueOf(highScore1), 25, 100); // high
-																				// score
-			g.drawString("Score:  " + String.valueOf(score), WIDTH - 150, 100); // your
-																				// score
+			g.drawString("High Score: " + String.valueOf(highScore1), WIDTH / 90, HEIGHT - HEIGHT / 9); // high
+			// score
+			g.drawString("Score:  " + String.valueOf(score), WIDTH - WIDTH / 6, HEIGHT - HEIGHT / 9); // your
+			// condition for 4sec pause in beginning // score
+			if (!tapped) {
+				try {
+					Thread.sleep(400);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				tapped = true;
+			}
 		}
+		// g.drawImage(lightning, bird.x, bird.y - 20, null);
 
+		if (cloudIntersects == true) { // draw lightning
+			g.drawImage(lightning, bird.x, bird.y - 20, lightning.getWidth() / 3, lightning.getHeight() / 3, null);
+			try {
+				clip2 = AudioSystem.getClip();
+				URL url = getClass().getClassLoader().getResource("SoundClips/soundElectric.wav");
+				clip2.open(AudioSystem.getAudioInputStream(url));
+				clip2.start();
+			} catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			count++;
+		}
+		if (close2water == true) { // draw shark
+			try {
+				clip3 = AudioSystem.getClip();
+				URL url = getClass().getClassLoader().getResource("SoundClips/soundBubble.wav");
+				clip3.open(AudioSystem.getAudioInputStream(url));
+				clip3.start();
+			} catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			g.drawImage(shark, bird.x - shark.getWidth() / 3 + count * 2, bird.y - count * 2, shark.getWidth() / 2,
+					shark.getHeight() / 2, null);
+			count++;
+		}
+		if (count == 18) {
+			gameOver = true;
+			count = 0; 
+		}
+		g.drawImage(birdImageCombine, bird.x, bird.y, null); // bird image
 	}
 
 	public class Render extends JPanel {
@@ -200,20 +359,30 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			Activity.activity.Repaint(g);
-			if (gameOver) {
+			if (gameOver == true) {
+				try {
+					clip.close();
+					Thread.sleep(1100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				jframe.setVisible(false);
 				LastPage lp = new LastPage();
 				lp.ConnectLastpage();
+				gameOverApproved = false;
+				// render.notify();
+
 			}
 		}
 
 	}
 
-	public static void main(String arg[]) {
-		activity = new Activity();
-		activity.ConnectActivity();
-
-	}
+	// public static void main(String arg[]) {
+	// activity = new Activity();
+	// activity.ConnectActivity();
+	//
+	// }
 
 	public void ConnectActivity() {
 		activity = new Activity();
@@ -223,31 +392,40 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		Fly();
+		birdImageCombine = birdImage1;
 
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
+		birdImageCombine = birdImage2;
 
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
-
+		birdImageCombine = birdImage2;
+		try {
+			clip4 = AudioSystem.getClip();
+			URL url = getClass().getClassLoader().getResource("SoundClips/soundBird.wav");
+			clip4.open(AudioSystem.getAudioInputStream(url));
+			clip4.start();
+		} catch (LineUnavailableException | IOException | UnsupportedAudioFileException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -276,6 +454,14 @@ public class Activity implements ActionListener, MouseListener, KeyListener {
 
 	public void setJframe(FrameClass jframe) {
 		this.jframe = jframe;
+	}
+
+	public static int getFinalScore() {
+		return finalScore;
+	}
+
+	public void setFinalScore(int finalScore) {
+		Activity.finalScore = finalScore;
 	}
 
 }
